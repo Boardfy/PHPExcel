@@ -2460,8 +2460,11 @@ class PHPExcel_Worksheet implements PHPExcel_IComparable
      */
     public function fromIterator($source = null, $nullValue = null, $startCell = 'A1', $strictNullComparison = false)
     {
-        if (!is_subclass_of($source, 'Iterator')  || !is_subclass_of($source->current(), 'Iterator')) {
-            throw new PHPExcel_Exception("Parameter \$source should be an Iterator containing an Iterator.");
+        if (!is_subclass_of($source, 'Iterator')) {
+            throw new PHPExcel_Exception("Parameter \$source should be an Iterator.");
+        }
+        if (!is_array($source->current()) && !is_subclass_of($source->current(), 'Iterator')) {
+            throw new PHPExcel_Exception("Parameter \$source Iterator should contain an Iterator or array.");
         }
 
         // start coordinate
