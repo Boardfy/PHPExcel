@@ -2449,6 +2449,48 @@ class PHPExcel_Worksheet implements PHPExcel_IComparable
     }
 
     /**
+     * Fill worksheet from values in Iterator
+     *
+     * @param Iterator $source Source array
+     * @param mixed $nullValue Value in source array that stands for blank cell
+     * @param string $startCell Insert array starting from this cell address as the top left coordinate
+     * @param boolean $strictNullComparison Apply strict comparison when testing for null values in the array
+     * @return PHPExcel_Worksheet
+     * @throws PHPExcel_Exception
+     */
+    public function fromIterator($source = null, $nullValue = null, $startCell = 'A1', $strictNullComparison = false)
+    {
+        if (!is_subclass_of($source, 'Iterator')  || !is_subclass_of($source->current(), 'Iterator')) {
+            throw new PHPExcel_Exception("Parameter \$source should be an Iterator containing an Iterator.");
+        }
+
+        // start coordinate
+        list ($startColumn, $startRow) = PHPExcel_Cell::coordinateFromString($startCell);
+
+        // Loop through $source
+        foreach ($source as $rowData) {
+            $currentColumn = $startColumn;
+            foreach ($rowData as $cellValue) {
+                if ($strictNullComparison) {
+                    if ($cellValue !== $nullValue) {
+                        // Set cell value
+                        $this->getCell($currentColumn . $startRow)->setValue($cellValue);
+                    }
+                } else {
+                    if ($cellValue != $nullValue) {
+                        // Set cell value
+                        $this->getCell($currentColumn . $startRow)->setValue($cellValue);
+                    }
+                }
+                ++$currentColumn;
+            }
+            ++$startRow;
+        }
+
+        return $this;
+    }
+
+    /**
      * Create array from a range of cells
      *
      * @param string $pRange Range of cells (i.e. "A1:B10"), or just one cell (i.e. "A1")
